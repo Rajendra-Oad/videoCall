@@ -107,7 +107,7 @@
         }
 
         /* mobile responsiveness */
-        @media (min-height:768px) {
+        @media (min-width:768px) {
             .main_container {
                 flex-direction: row;
             }
@@ -117,7 +117,7 @@
             }
         }
 
-        @media (max-width:576px) {
+        @media (max-width:480px) {
             body {
                 padding: 0px;
                 overflow-x: hidden;
@@ -151,7 +151,7 @@
         <section class="video_container row">
             <video autoplay id="webCamVideo" class="col-lg-11 col-12 mb-3 p-0"></video>
             <div
-                class="btn_container controls col-lg-1 col-12 d-flex gap-3 align-items-center justify-content-lg-end justify-content-center flex-lg-column flex-row jus">
+                class="btn_container controls col-lg-1 col-12 d-flex gap-3 align-items-center justify-content-lg-end justify-content-center flex-lg-column flex-row">
                 <button id="micBtn" aria-label="Mute/Unmute"><i class="ri-mic-line"></i></button>
                 <button id="webcamBtn" aria-label="Start/Stop Webcam"><i class="ri-video-on-line"></i></button>
                 <button id="screenShare" aria-label="Screen Share"><i class="ri-arrow-up-box-line"></i></button>
