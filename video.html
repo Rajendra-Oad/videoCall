@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call Video</title>
+    <link rel="stylesheet" href="./remixicons-4.5.0/fonts/remixicon.css">
+    <link rel="stylesheet" href="./bootstrap-5.3.3-dist/css/bootstrap.min.css">
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins Regular', sans-serif;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            height: 55px;
+            padding: 1rem;
+        }
+
+        .main_container {
+            display: flex;
+            flex: 1;
+            padding: 1rem;
+            gap: 2rem;
+            flex-direction: column;
+        }
+
+        .video_container {
+            position: relative;
+            min-height: 0;
+            padding: 1rem;
+            display: flex;
+            flex: 2;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        video {
+            width: 100%;
+            max-width: 100%;
+            height: 100%;
+            aspect-ratio: 16/9;
+            transform: scaleX(-1);
+            background: black;
+            border-radius: 1rem;
+            object-fit: cover;
+            box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        button {
+            background: #f5f5f5;
+            color: #000;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            padding: 1rem;
+            border: 1px solid rgba(128, 128, 128, 0.2);
+            box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+            outline: none;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+
+        button:hover {
+            /* background: rgb(63, 133, 255); */
+            background: #9393938b;
+            color: white;
+        }
+
+        button.active {
+            background: #ff4444;
+            color: white;
+        }
+
+        button.active:hover {
+            background: #cc0000;
+            color: white;
+        }
+
+        button#end {
+            background: red;
+            color: white;
+            transform: rotate(135deg);
+        }
+
+        button#end:hover {
+            background: rgb(206, 0, 0);
+        }
+
+        /* mobile responsiveness */
+        @media (min-height:768px) {
+            .main_container {
+                flex-direction: row;
+            }
+
+            .video_container {
+                max-width: calc(70% - 10px);
+            }
+        }
+
+        @media (max-width:576px) {
+            body {
+                padding: 0px;
+                overflow-x: hidden;
+            }
+
+            .main_container {
+                padding: 10px;
+                gap: 10px;
+            }
+
+        }
+
+        .primary-btn{
+            background: #007bff;
+            color: white;
+        }
+
+        footer{
+            width: 100%;
+            
+        }
+    </style>
+</head>
+
+<body>
+    <header class="d-flex align-items-lg-baseline align-items-center justify-content-lg-evenly flex-lg-row flex-column">
+        <h4 class="align-self-lg-start">Video Conference</h4>
+        <p>Meeting ID : 123-456-789</p>
+    </header>
+    <main class="main_container container-fluid">
+        <section class="video_container row">
+            <video autoplay id="webCamVideo" class="col-lg-11 col-12 mb-3 p-0"></video>
+            <div
+                class="btn_container controls col-lg-1 col-12 d-flex gap-3 align-items-center justify-content-lg-end justify-content-center flex-lg-column flex-row jus">
+                <button id="micBtn" aria-label="Mute/Unmute"><i class="ri-mic-line"></i></button>
+                <button id="webcamBtn" aria-label="Start/Stop Webcam"><i class="ri-video-on-line"></i></button>
+                <button id="screenShare" aria-label="Screen Share"><i class="ri-arrow-up-box-line"></i></button>
+                <button id="end" aria-label="End Call"><i class="ri-phone-fill"></i></button>
+            </div>
+        </section>
+        <aside>
+
+        </aside>
+    </main>
+    <footer class="d-flex align-items-center justify-content-center bg-primary py-4 text-white w-100b text-center mt-5">
+        <p class="m-0">Powered by Rajendra Oad &copy; 2024</p>
+    </footer>
+
+
+
+    <script>
+        const webcamBtn = document.getElementById('webcamBtn');
+        const videoElement = document.getElementById('webCamVideo');
+        const screenShare = document.getElementById('screenShare');
+        const micBtn = document.getElementById('micBtn');
+        const endCall = document.getElementById('end');
+        let mediaStream = null;
+        let isMuted = true;
+        let isScreenSharing = false;
+
+        async function startWebCam() {
+            if (!mediaStream) {
+                try {
+                    mediaStream = await navigator.mediaDevices.getUserMedia({
+                        video: true,
+                        audio: true,
+                    });
+                    videoElement.srcObject = mediaStream;
+                    webcamBtn.innerHTML = `<i class="ri-video-off-line"></i>`;
+                    webcamBtn.classList.add('active');
+                    micBtn.disabled = false;
+                    endCall.disabled = false;
+                    screenShare.disabled = false;
+                } catch (error) {
+                    console.error(`Error accessing webcam, ${error}`);
+                    alert(`Error accessing webcam. Please make sure you have allowed camera permissions.`);
+                }
+            } else {
+                stopWebCam();
+            }
+        }
+
+        function toggleAudio() {
+            isMuted = !isMuted;
+            mediaStream.getAudioTracks().forEach(track => {
+                track.enabled = !track.enabled;
+            });
+            micBtn.innerHTML = `${isMuted ? "<i class='ri-mic-off-line'></i>" : "<i class='ri-mic-line'></i>"}`;
+            micBtn.classList.toggle('primary-btn', !isMuted);
+        }
+
+        async function toggleScreenShare() {
+            if (!isScreenSharing) {
+                try {
+                    const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                    screenStream.getVideoTracks().forEach(track => {
+                        mediaStream.addTrack(track);
+                    });
+                    isScreenSharing = true;
+                    screenShare.innerHTML = "<i class='ri-arrow-up-box-fill'></i>";
+                    screenShare.classList.add('primary-btn');
+                } catch (error) {
+                    console.error("Error sharing screen:", error);
+                }
+            } else {
+                mediaStream.getVideoTracks().forEach(track => {
+                    if (track.readyState === 'live' && track.kind === 'video') {
+                        track.stop();
+                    }
+                });
+                isScreenSharing = false;
+                screenShare.innerHTML = "<i class='ri-arrow-up-box-line'></i>";
+                screenShare.classList.remove('primary-btn');
+            }
+        }
+
+        function stopWebCam() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                videoElement.srcObject = null;
+                mediaStream = null;
+                micBtn.disabled = true;
+                endCall.disabled = true;
+                screenShare.disabled = true;
+                webcamBtn.innerHTML = `<i class="ri-video-on-line"></i>`;
+                webcamBtn.classList.remove('active');
+            }
+        }
+
+        endCall.addEventListener('click', () => {
+            const confirmEnd = confirm(`Are you sure you want to end the call?`);
+            if (confirmEnd) {
+                alert(`Call Ended.`);
+                stopWebCam();
+                isMuted = true;
+                isScreenSharing = false;
+            }
+        });
+
+        micBtn.addEventListener('click', toggleAudio);
+        screenShare.addEventListener('click', toggleScreenShare);
+        webcamBtn.addEventListener('click', startWebCam);
+    </script>
+    <!-- <script>
+        const webcamBtn = document.getElementById('webcamBtn');
+        const videoElement = document.getElementById('webCamVideo');
+        const screenShare = document.getElementById('screenShare');
+        const micBtn = document.getElementById('micBtn');
+        const endCall = document.getElementById('end');
+        let mediaStream = null;
+        let isMuted = true;
+        let isScreenSharing = false;
+        async function startWebCam() {
+            if (!mediaStream) {
+
+                try {
+                    mediaStream = await navigator.mediaDevices.getUserMedia(
+                        {
+                            video: true,
+                            audio: true,
+                            screen: true
+                        });
+                    console.log(mediaStream)
+                    videoElement.srcObject = mediaStream;
+                    webcamBtn.innerHTML = `<i class="ri-video-off-line"><i>`;
+                    webcamBtn.classList.add('active');
+                    micBtn.disabled = false;
+                    endCall.disabled = false;
+                    screenShare.disabled = false;
+                } catch (error) {
+                    console.error(`Error accessing webcam, ${error}`);
+                    alert(`Error accessing webcam.Please make sure you have allowed camera permissions.`);
+                }
+            } else {
+
+                stopWebCam();
+                micBtn.disabled = true;
+                endCall.disabled = true;
+                screenShare.disabled = true;
+            }
+        }
+
+        // audio controls
+        function toggleAudio(){
+            if(!mediaStream){
+                isMuted = !isMuted;
+                mediaStream.getAudioTracks().forEach(track=>{track.enabled = !track.enabled});
+                micBtn.innerHTML = `${isMuted ? "<i class='ri-mic-off-line'></i>" : "<i class='ri-mic-line'></i>"}`;
+                micBtn.classList.toggle('primary-btn',!isMuted)
+            }
+        }
+        //Screen sharing
+        async function toggleScreenShare(){
+            if(!mediaStream){
+                isScreenSharing = !isScreenSharing;
+                mediaStream.getVideoTracks().forEach(track=>{track.enabled = !track.enabled});
+                screenShare.innerHTML = `${isScreenSharing ? "<i class='ri-arrow-up-box-fill'></i>" : "<i class='ri-arrow-down-box-line'></i>"}`;
+                screenShare.classList.toggle('primary-btn',!isScreenSharing)
+            }
+        }
+
+
+        function stopWebCam() {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                console.log(mediaStream)
+                videoElement.srcObject = null;
+                mediaStream = null;
+                micBtn.disabled = true;
+                endCall.disabled = true;
+                screenShare.disabled = true;
+                webcamBtn.innerHTML = `<i class="ri-video-on-line"></i>`;
+                webcamBtn.classList.remove('active');
+            }
+        }
+
+
+        endCall.addEventListener('click', () => {
+            const confirmEnd = confirm(`Are you sure you want to end the call?`);
+            if (confirmEnd) {
+                alert(`Call Ended.`)
+                if (videoElement.srcObject) {
+                    videoElement.srcObject.getTracks().forEach(track => { track.stop() });
+                    videoElement.srcObject = null;
+                    mediaStream = null;
+                    webcamBtn.innerHTML = `<i class="ri-video-on-line"></i>`;
+                    webcamBtn.classList.remove('active');
+                    micBtn.disabled = true;
+                    endCall.disabled = true;
+                    screenShare.disabled = true;
+                    isMuted = true;
+                    isScreenSharing = false;
+                    stopWebCam();
+                    stopMediaStream();
+                    stopAudio();
+                    stopScreenShare();
+                }
+            }
+        });
+
+        micBtn.addEventListener('click',toggleAudio);
+        screenShare.addEventListener('click',toggleScreenShare);
+        webcamBtn.addEventListener('click',startWebCam);
+    </script> -->
+</body>
+
+</html>
