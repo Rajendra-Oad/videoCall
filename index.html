@@ -206,7 +206,7 @@
             mediaStream.getAudioTracks().forEach(track => {
                 track.enabled = !track.enabled;
             });
-            micBtn.innerHTML = `${isMuted ? "<i class='ri-mic-off-line'></i>" : "<i class='ri-mic-line'></i>"}`;
+            micBtn.innerHTML = `${isMuted ? "<i class='ri-mic-line'></i>" : "<i class='ri-mic-off-line'></i>"}`;
             micBtn.classList.toggle('primary-btn', !isMuted);
         }
 
